@@ -29,7 +29,11 @@ class LaporanController extends Controller
         }
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            if ($request->status === 'aktif') {
+                $query->whereNotIn('status', ['selesai', 'ditolak']);
+            } else {
+                $query->where('status', $request->status);
+            }
         }
 
         if ($request->filled('start_date')) {

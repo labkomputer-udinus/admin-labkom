@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Constants\Lab;
+use App\Models\BarangTertinggal;
 use App\Models\Distribusi;
 use App\Models\Laporan;
 use App\Models\LaporanItem;
@@ -18,6 +19,10 @@ class DashboardController extends Controller
         $laporanProses = Laporan::whereNotIn('status', ['selesai', 'ditolak'])->count();
         $laporanSelesai = Laporan::where('status', 'selesai')->count();
         $pengajuanMenunggu = Pengajuan::where('status', 'menunggu')->count();
+
+        // Barang Tertinggal Metrics
+        $totalBarangTertinggal = BarangTertinggal::count();
+        $barangTertinggalBelumDiambil = BarangTertinggal::where('status', 'belum_diambil')->count();
 
         // Stok Kritis
         $stokKritis = StokGudang::with('barangMaster')
@@ -53,6 +58,12 @@ class DashboardController extends Controller
         // Distribusi Terbaru
         $recentDistribusi = Distribusi::with(['laporanItem.laporan', 'stokGudang.barangMaster'])
             ->latest('tanggal_distribusi')
+            ->latest('id')
+            ->take(5)
+            ->get();
+
+        // Barang Tertinggal Terbaru
+        $recentBarangTertinggal = BarangTertinggal::latest('tanggal_ditemukan')
             ->latest('id')
             ->take(5)
             ->get();
@@ -153,10 +164,13 @@ class DashboardController extends Controller
             'laporanProses',
             'laporanSelesai',
             'pengajuanMenunggu',
+            'totalBarangTertinggal',
+            'barangTertinggalBelumDiambil',
             'stokKritis',
             'statusCounts',
             'labReports',
             'recentLaporans',
+            'recentBarangTertinggal',
             'recentDistribusi',
             'topPenggantianBelumDistribusi',
             'labKebutuhan',
