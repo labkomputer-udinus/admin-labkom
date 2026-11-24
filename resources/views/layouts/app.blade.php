@@ -26,6 +26,11 @@
             document.documentElement.classList.remove('dark');
         }
 
+        // Init Sidebar collapsed state early (desktop only)
+        if (localStorage.getItem('sidebar_collapsed') === 'true' && window.innerWidth >= 768) {
+            document.documentElement.classList.add('sidebar-init-collapsed');
+        }
+
         function toggleDarkMode() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
@@ -35,116 +40,176 @@
                 localStorage.setItem('theme', 'dark');
             }
         }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('main-sidebar');
+            const backdrop = document.getElementById('sidebar-backdrop');
+            if (!sidebar) return;
+
+            if (window.innerWidth < 768) {
+                // Mobile: toggle off-canvas
+                const isClosed = sidebar.classList.contains('-translate-x-full');
+                if (isClosed) {
+                    sidebar.classList.remove('-translate-x-full');
+                    if (backdrop) backdrop.classList.remove('hidden');
+                } else {
+                    sidebar.classList.add('-translate-x-full');
+                    if (backdrop) backdrop.classList.add('hidden');
+                }
+            } else {
+                // Desktop: toggle minimize to icons only / expand
+                const isCollapsed = sidebar.classList.toggle('sidebar-collapsed');
+                localStorage.setItem('sidebar_collapsed', isCollapsed ? 'true' : 'false');
+                if (isCollapsed) {
+                    document.documentElement.classList.add('sidebar-init-collapsed');
+                } else {
+                    document.documentElement.classList.remove('sidebar-init-collapsed');
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('main-sidebar');
+            if (sidebar && window.innerWidth >= 768 && localStorage.getItem('sidebar_collapsed') === 'true') {
+                sidebar.classList.add('sidebar-collapsed');
+            }
+        });
     </script>
 </head>
 <body class="h-full bg-background text-foreground font-sans antialiased selection:bg-primary/20 selection:text-primary">
     <div class="flex h-screen overflow-hidden">
         
-        <!-- Sidebar Navigation -->
-        <aside class="w-64 flex-shrink-0 flex flex-col border-r border-sidebar-border bg-sidebar transition-all duration-300 z-30">
+        <!-- Mobile Sidebar Backdrop Overlay -->
+        <div id="sidebar-backdrop" onclick="toggleSidebar()" class="fixed inset-0 bg-black/40 backdrop-blur-xs z-30 hidden md:hidden transition-opacity"></div>
+
+        <!-- Floating Card Sidebar Navigation -->
+        <aside id="main-sidebar" 
+            class="sidebar-card fixed inset-y-0 left-0 my-3 ml-3 md:relative flex-shrink-0 flex flex-col rounded-3xl border border-border bg-card shadow-md z-40 overflow-hidden h-[calc(100vh-1.5rem)] w-64 -translate-x-full md:translate-x-0 transition-all duration-300 select-none">
+            
             <!-- Brand / Logo -->
-            <div class="h-16 px-6 flex items-center justify-between border-b border-sidebar-border/60">
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group">
-                    <div class="w-10 h-10 rounded-2xl bg-white dark:bg-sidebar-accent p-1 flex items-center justify-center shadow-md shadow-primary/15 border border-sidebar-border/80 transition-transform group-hover:scale-105 flex-shrink-0">
+            <div class="h-16 px-4 flex items-center justify-between border-b border-border/80 flex-shrink-0 sidebar-brand">
+                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 group min-w-0" title="LabKom Admin">
+                    <div class="w-10 h-10 rounded-2xl bg-white dark:bg-muted p-1 flex items-center justify-center shadow-md shadow-primary/15 border border-border transition-transform group-hover:scale-105 flex-shrink-0">
                         <img src="{{ asset('images/Logo Udinus.png') }}" alt="Logo Udinus" class="w-full h-full object-contain">
                     </div>
-                    <div class="min-w-0">
-                        <h1 class="font-bold text-base tracking-tight text-sidebar-foreground truncate">LabKom <span class="text-primary">Admin</span></h1>
-                        <p class="text-xs text-muted-foreground truncate">Universitas Dian Nuswantoro</p>
+                    <div class="min-w-0 sidebar-text">
+                        <h1 class="font-bold text-base tracking-tight text-foreground truncate">LabKom <span class="text-primary">Admin</span></h1>
+                        <p class="text-[11px] text-muted-foreground truncate">Universitas Dian Nuswantoro</p>
                     </div>
                 </a>
             </div>
 
             <!-- Navigation Links -->
             <div class="flex-1 overflow-y-auto custom-scrollbar px-3 py-4 space-y-1">
-                <div class="px-3 pb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Menu Utama</div>
+                <div class="sidebar-section-title px-3 pb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Menu Utama</div>
+                <div class="sidebar-section-divider hidden h-px bg-border/60 my-2 mx-2"></div>
 
-                <a href="{{ route('dashboard') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground' }}">
+                <a href="{{ route('dashboard') }}" 
+                    class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('dashboard') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-foreground hover:bg-muted hover:text-foreground' }}"
+                    title="Dashboard">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>
                     </svg>
-                    <span>Dashboard</span>
+                    <span class="sidebar-text truncate">Dashboard</span>
                 </a>
 
-                <a href="{{ route('laporan.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('laporan.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground' }}">
+                <a href="{{ route('laporan.index') }}" 
+                    class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('laporan.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-foreground hover:bg-muted hover:text-foreground' }}"
+                    title="Laporan Masuk">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                     </svg>
-                    <span>Laporan Masuk</span>
+                    <span class="sidebar-text truncate">Laporan Masuk</span>
                 </a>
 
-                <a href="{{ route('barang-tertinggal.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('barang-tertinggal.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground' }}">
+                <a href="{{ route('barang-tertinggal.index') }}" 
+                    class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('barang-tertinggal.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-foreground hover:bg-muted hover:text-foreground' }}"
+                    title="Barang Tertinggal">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                     </svg>
-                    <span>Barang Tertinggal</span>
+                    <span class="sidebar-text truncate">Barang Tertinggal</span>
                 </a>
 
-                <div class="pt-4 px-3 pb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Tindak Lanjut & Logistik</div>
+                <div class="sidebar-section-title pt-4 px-3 pb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Tindak Lanjut & Logistik</div>
+                <div class="sidebar-section-divider hidden h-px bg-border/60 my-2 mx-2"></div>
 
-                <a href="{{ route('pengajuan.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('pengajuan.*') || request()->routeIs('penerimaan.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground' }}">
+                <a href="{{ route('pengajuan.index') }}" 
+                    class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('pengajuan.*') || request()->routeIs('penerimaan.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-foreground hover:bg-muted hover:text-foreground' }}"
+                    title="Pengajuan Pengadaan">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
                     </svg>
-                    <span>Pengajuan Pengadaan</span>
+                    <span class="sidebar-text truncate">Pengajuan Pengadaan</span>
                 </a>
 
-                <a href="{{ route('gudang.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('gudang.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground' }}">
+                <a href="{{ route('gudang.index') }}" 
+                    class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('gudang.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-foreground hover:bg-muted hover:text-foreground' }}"
+                    title="Gudang & Stok">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
-                    <span>Gudang & Stok</span>
+                    <span class="sidebar-text truncate">Gudang & Stok</span>
                 </a>
 
-                <a href="{{ route('distribusi.index') }}" class="flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('distribusi.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground' }}">
+                <a href="{{ route('distribusi.index') }}" 
+                    class="sidebar-link flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors {{ request()->routeIs('distribusi.*') ? 'bg-primary text-white shadow-sm shadow-primary/20' : 'text-foreground hover:bg-muted hover:text-foreground' }}"
+                    title="Distribusi ke Lab">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"/>
                     </svg>
-                    <span>Distribusi ke Lab</span>
+                    <span class="sidebar-text truncate">Distribusi ke Lab</span>
                 </a>
 
-                <div class="pt-4 px-3 pb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Dokumentasi & Rekap</div>
+                <div class="sidebar-section-title pt-4 px-3 pb-2 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Dokumentasi & Rekap</div>
+                <div class="sidebar-section-divider hidden h-px bg-border/60 my-2 mx-2"></div>
 
                 <div class="space-y-1">
-                    <a href="{{ route('ekspor.laporan.excel') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-                        <svg class="w-4 h-4 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <a href="{{ route('ekspor.laporan.excel') }}" 
+                        class="sidebar-link flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        title="Unduh Rekap Laporan">
+                        <svg class="w-4 h-4 text-emerald-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
                         </svg>
-                        <span>Unduh Rekap Laporan</span>
+                        <span class="sidebar-text truncate">Unduh Rekap Laporan</span>
                     </a>
 
-                    <a href="{{ route('ekspor.barang-tertinggal.excel') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-                        <svg class="w-4 h-4 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <a href="{{ route('ekspor.barang-tertinggal.excel') }}" 
+                        class="sidebar-link flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        title="Unduh Rekap Barang Tertinggal">
+                        <svg class="w-4 h-4 text-amber-500 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
                         </svg>
-                        <span>Unduh Rekap Barang Tertinggal</span>
+                        <span class="sidebar-text truncate">Unduh Rekap Barang Tertinggal</span>
                     </a>
 
-                    <a href="{{ route('ekspor.distribusi.excel') }}" class="flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-colors">
-                        <svg class="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <a href="{{ route('ekspor.distribusi.excel') }}" 
+                        class="sidebar-link flex items-center gap-3 px-3.5 py-2 rounded-xl text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+                        title="Log Akreditasi Distribusi">
+                        <svg class="w-4 h-4 text-primary flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                         </svg>
-                        <span>Log Akreditasi Distribusi</span>
+                        <span class="sidebar-text truncate">Log Akreditasi Distribusi</span>
                     </a>
                 </div>
             </div>
 
             <!-- Admin Profile & Logout -->
-            <div class="p-3 border-t border-sidebar-border bg-sidebar/50">
-                <div class="flex items-center justify-between p-2 rounded-2xl hover:bg-sidebar-accent transition-colors">
-                    <div class="flex items-center gap-3 min-w-0">
-                        <div class="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center flex-shrink-0">
+            <div class="p-3 border-t border-border bg-card/60 flex-shrink-0">
+                <div class="sidebar-user-container flex items-center justify-between p-2 rounded-2xl hover:bg-muted/40 transition-colors">
+                    <div class="sidebar-user-inner flex items-center gap-3 min-w-0">
+                        <div class="w-9 h-9 rounded-full bg-primary/20 text-primary font-bold flex items-center justify-center flex-shrink-0 shadow-xs" title="{{ Auth::user()->name ?? 'Administrator' }}">
                             {{ substr(Auth::user()->name ?? 'Admin', 0, 1) }}
                         </div>
-                        <div class="truncate">
-                            <p class="text-xs font-semibold text-sidebar-foreground truncate">{{ Auth::user()->name ?? 'Administrator' }}</p>
+                        <div class="truncate sidebar-user-info">
+                            <p class="text-xs font-semibold text-foreground truncate">{{ Auth::user()->name ?? 'Administrator' }}</p>
                             <p class="text-[11px] text-muted-foreground truncate">{{ Auth::user()->email ?? 'admin@labkom.id' }}</p>
                         </div>
                     </div>
 
-                    <form method="POST" action="{{ route('logout') }}">
+                    <form method="POST" action="{{ route('logout') }}" class="sidebar-logout-form">
                         @csrf
-                        <button type="submit" title="Logout" class="p-1.5 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg transition-colors">
+                        <button type="submit" title="Logout" class="p-1.5 text-muted-foreground hover:text-rose-600 hover:bg-rose-500/10 rounded-lg transition-colors flex items-center justify-center">
                             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
                             </svg>
@@ -158,9 +223,18 @@
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
             
             <!-- Topbar Header -->
-            <header class="h-16 px-6 border-b border-border bg-card/80 backdrop-blur-md flex items-center justify-between flex-shrink-0 z-20">
-                <div class="flex items-center gap-4">
-                    <h2 class="text-lg font-bold tracking-tight text-foreground">
+            <header class="h-16 px-4 sm:px-6 border-b border-border bg-card/80 backdrop-blur-md flex items-center justify-between flex-shrink-0 z-20">
+                <div class="flex items-center gap-3">
+                    <!-- Hamburger Toggle Button -->
+                    <button onclick="toggleSidebar()" type="button" id="sidebar-toggle-btn"
+                        class="p-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center shadow-2xs group"
+                        title="Toggle Sidebar (Kecilkan / Perbesar Menu)">
+                        <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+
+                    <h2 class="text-base sm:text-lg font-bold tracking-tight text-foreground truncate">
                         @yield('header_title', 'Dashboard')
                     </h2>
                 </div>

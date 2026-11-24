@@ -165,7 +165,7 @@
             class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3 pt-4 border-t border-border">
 
             <div>
-                <label class="block text-xs font-semibold text-muted-foreground mb-1.5">Cari Barang / Pemilik / Penemu</label>
+                <label class="block text-xs font-semibold text-muted-foreground mb-1.5">Cari Barang</label>
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama barang, pemilik..."
                     class="w-full px-3 py-2 rounded-xl bg-input border border-border text-sm text-foreground placeholder-muted-foreground focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors">
             </div>

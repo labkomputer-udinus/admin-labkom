@@ -214,37 +214,6 @@
             @endif
         </section>
 
-        <!-- Frekuensi Laporan per Laboratorium (Grid 14 Lab) -->
-        <section class="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4"
-            data-purpose="report-frequency-section">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border/80">
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
-                        <h2 class="text-base font-bold text-foreground">Frekuensi Laporan per Laboratorium</h2>
-                    </div>
-                    <p class="text-xs text-muted-foreground mt-0.5 ml-4.5">Distribusi akumulasi permasalahan di 14
-                        laboratorium komputer (D2A – D3N).</p>
-                </div>
-                <span
-                    class="self-start sm:self-auto text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
-                    Total 14 Laboratorium
-                </span>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
-                @foreach($labReports as $lab => $count)
-                    <a href="{{ route('laporan.index', ['lab' => $lab]) }}"
-                        class="bg-muted/40 hover:bg-primary/5 hover:border-primary/50 border border-border rounded-xl p-3.5 text-center transition-all group flex flex-col justify-between">
-                        <span
-                            class="text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">{{ $lab }}</span>
-                        <div class="text-2xl font-black text-foreground my-1">{{ $count }}</div>
-                        <span class="text-[11px] text-muted-foreground font-medium">laporan</span>
-                    </a>
-                @endforeach
-            </div>
-        </section>
-
         <!-- 5 Barang Terbanyak yang Perlu Diganti & Belum Didistribusikan -->
         <section
             class="bg-gradient-to-r from-amber-500/10 via-amber-500/5 to-amber-500/15 rounded-2xl border border-amber-500/30 p-5 shadow-xs"
@@ -302,6 +271,38 @@
                 @endforelse
             </div>
         </section>
+
+        <!-- Frekuensi Laporan per Laboratorium (Grid 14 Lab) -->
+        <section class="bg-card border border-border rounded-2xl p-6 shadow-xs space-y-4"
+            data-purpose="report-frequency-section">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border/80">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-full bg-primary"></span>
+                        <h2 class="text-base font-bold text-foreground">Frekuensi Laporan per Laboratorium</h2>
+                    </div>
+                    <p class="text-xs text-muted-foreground mt-0.5 ml-4.5">Distribusi akumulasi permasalahan di 14
+                        laboratorium komputer (D2A – D3N).</p>
+                </div>
+                <span
+                    class="self-start sm:self-auto text-xs font-semibold text-primary bg-primary/10 border border-primary/20 px-3 py-1 rounded-full">
+                    Total 14 Laboratorium
+                </span>
+            </div>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3">
+                @foreach($labReports as $lab => $count)
+                    <a href="{{ route('laporan.index', ['lab' => $lab]) }}"
+                        class="bg-muted/40 hover:bg-primary/5 hover:border-primary/50 border border-border rounded-xl p-3.5 text-center transition-all group flex flex-col justify-between">
+                        <span
+                            class="text-xs font-semibold text-muted-foreground group-hover:text-primary transition-colors">{{ $lab }}</span>
+                        <div class="text-2xl font-black text-foreground my-1">{{ $count }}</div>
+                        <span class="text-[11px] text-muted-foreground font-medium">laporan</span>
+                    </a>
+                @endforeach
+            </div>
+        </section>
+
 
         <!-- 3 Data Tables: Laporan Terbaru, Barang Tertinggal Terbaru, Distribusi Terakhir -->
         <section class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-purpose="recent-activities-tables">
