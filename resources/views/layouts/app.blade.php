@@ -222,12 +222,12 @@
         <!-- Main Content Area -->
         <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
             
-            <!-- Topbar Header -->
-            <header class="h-16 px-4 sm:px-6 border-b border-border bg-card/80 backdrop-blur-md flex items-center justify-between flex-shrink-0 z-20">
-                <div class="flex items-center gap-3">
+            <!-- Floating Topbar Header Card -->
+            <header class="mt-3 mx-3 md:ml-3 md:mr-3 px-4 sm:px-6 h-16 rounded-2xl md:rounded-3xl border border-border bg-card shadow-sm flex items-center justify-between flex-shrink-0 z-20 transition-all duration-300">
+                <div class="flex items-center gap-3 min-w-0">
                     <!-- Hamburger Toggle Button -->
                     <button onclick="toggleSidebar()" type="button" id="sidebar-toggle-btn"
-                        class="p-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center shadow-2xs group"
+                        class="p-2 rounded-xl border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors flex items-center justify-center shadow-2xs group flex-shrink-0"
                         title="Toggle Sidebar (Kecilkan / Perbesar Menu)">
                         <svg class="w-5 h-5 transition-transform group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
@@ -239,17 +239,18 @@
                     </h2>
                 </div>
 
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2.5 sm:gap-3 flex-shrink-0">
                     <!-- Quick Create Laporan Button -->
-                    <a href="{{ route('laporan.create') }}" class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-primary text-white text-xs font-semibold shadow-sm hover:bg-primary/90 transition-transform active:scale-95">
+                    <a href="{{ route('laporan.create') }}" class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-white text-xs font-semibold shadow-xs hover:bg-primary/90 transition-all active:scale-95">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
                         </svg>
-                        <span>Input Laporan</span>
+                        <span class="hidden sm:inline">Input Laporan</span>
+                        <span class="sm:hidden">Input</span>
                     </a>
 
                     <!-- Dark Mode Toggle -->
-                    <button onclick="toggleDarkMode()" type="button" class="p-2 rounded-xl border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors" title="Ganti Mode Gelap / Terang">
+                    <button onclick="toggleDarkMode()" type="button" class="p-2 rounded-xl border border-border/80 text-muted-foreground hover:text-foreground hover:bg-muted transition-colors shadow-2xs" title="Ganti Mode Gelap / Terang">
                         <svg class="w-5 h-5 hidden dark:block text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
                         </svg>
@@ -261,7 +262,7 @@
             </header>
 
             <!-- Main Page Scrollable Body -->
-            <main class="flex-1 overflow-y-auto custom-scrollbar p-6 sm:p-8 lg:p-10 space-y-8">
+            <main class="flex-1 overflow-y-auto custom-scrollbar px-3 sm:px-6 md:px-6 pt-3 pb-10 space-y-8">
                 
                 <!-- Flash Messages -->
                 @if(session('success'))
