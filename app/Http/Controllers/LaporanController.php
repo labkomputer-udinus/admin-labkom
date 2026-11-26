@@ -273,6 +273,54 @@ class LaporanController extends Controller
         return redirect()->route('laporan.show', $laporan)->with('success', 'Data laporan berhasil diperbarui.');
     }
 
+    public function storeItem(Request $request, Laporan $laporan)
+    {
+        $validated = $request->validate([
+            'nama_barang'         => ['required', 'string', 'max:255'],
+            'deskripsi'           => ['nullable', 'string'],
+            'jumlah'              => ['required', 'integer', 'min:1'],
+            'satuan'              => ['required', 'string', 'max:50'],
+            'jenis_tindak_lanjut' => ['required', 'in:pending,tindak_ulang,perbaikan,penggantian'],
+            'keterangan'          => ['nullable', 'string'],
+        ]);
+
+        DB::transaction(function () use ($validated, $laporan) {
+            $statusItem = 'menunggu_triase';
+            if (in_array($validated['jenis_tindak_lanjut'], ['perbaikan', 'tindak_ulang'])) {
+                $statusItem = 'proses_perbaikan';
+            } elseif ($validated['jenis_tindak_lanjut'] === 'penggantian') {
+                $statusItem = 'menunggu_pengadaan';
+            }
+
+            $item = LaporanItem::create([
+                'laporan_id'          => $laporan->id,
+                'nama_barang'         => $validated['nama_barang'],
+                'deskripsi'           => $validated['deskripsi'] ?? null,
+                'jumlah'              => $validated['jumlah'],
+                'satuan'              => $validated['satuan'],
+                'jenis_tindak_lanjut' => $validated['jenis_tindak_lanjut'],
+                'keterangan'          => $validated['keterangan'] ?? null,
+                'status_item'         => $statusItem,
+            ]);
+
+            $item->penanganans()->create([
+                'tahap'                => 'Item Ditambahkan ke Laporan',
+                'jenis_tindakan'       => JenisTindakan::LAPORAN_DICATAT,
+                'aktor_peran'          => 'Admin: ' . (auth()->user()->name ?? 'Admin Lab'),
+                'tindakan_atau_hasil'  => 'Item permasalahan baru ditambahkan ke laporan oleh Admin setelah laporan awal dibuat.',
+                'petugas'              => auth()->user()->name ?? 'Admin',
+                'status_sebelum'       => null,
+                'status_item_saat_itu' => $statusItem,
+                'tanggal_tindakan'     => now(),
+                'tanggal_waktu'        => now(),
+            ]);
+
+            $laporan->updateAutoStatus();
+        });
+
+        return redirect()->route('laporan.show', $laporan)->with('success', 'Item baru berhasil ditambahkan ke laporan.');
+    }
+
     public function updateItem(Request $request, Laporan $laporan, LaporanItem $item)
     {
         $validated = $request->validate([

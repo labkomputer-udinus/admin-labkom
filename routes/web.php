@@ -26,6 +26,7 @@ Route::middleware('auth')->group(function () {
 
     // Laporan Permasalahan
     Route::resource('laporan', LaporanController::class);
+    Route::post('laporan/{laporan}/items', [LaporanController::class, 'storeItem'])->name('laporan.item.store');
     Route::put('laporan/{laporan}/items/{item}', [LaporanController::class, 'updateItem'])->name('laporan.item.update');
     Route::delete('laporan/{laporan}/items/{item}', [LaporanController::class, 'destroyItem'])->name('laporan.item.destroy');
     Route::patch('laporan/{laporan}/items/{item}/konfirmasi-selesai', [LaporanController::class, 'konfirmasiSelesaiItem'])->name('laporan.item.konfirmasi-selesai');

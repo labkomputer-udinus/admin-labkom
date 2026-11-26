@@ -223,7 +223,7 @@
     </section>
 
     <!-- Section Header Daftar Item Permasalahan -->
-    <div class="flex items-center justify-between pt-2">
+    <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
         <div>
             <div class="flex items-center gap-2">
                 <h3 class="text-base font-bold text-foreground tracking-tight">Daftar Item Permasalahan</h3>
@@ -233,6 +233,14 @@
             </div>
             <p class="text-xs text-muted-foreground mt-0.5">Klik pada setiap item untuk melihat keluhan, aksi logistik, dan riwayat tracking langkah penanganan.</p>
         </div>
+
+        <button type="button" onclick="openAddItemModal()"
+            class="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-primary text-white text-xs font-semibold shadow-xs hover:bg-primary/90 transition-all active:scale-95">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Tambah Item</span>
+        </button>
     </div>
 
     <!-- Item Cards -->
@@ -742,12 +750,99 @@
     </div>
 </div>
 
+<!-- Modal Tambah Item Laporan -->
+<div id="modal-add-item" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="bg-card border border-border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between pb-3 border-b border-border">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0 border border-primary/20">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="text-sm font-bold text-foreground">Tambah Item Permasalahan Baru</h3>
+                    <p class="text-[11px] text-muted-foreground">Tambahkan barang atau komponen bermasalah ke laporan ini.</p>
+                </div>
+            </div>
+            <button type="button" onclick="closeAddItemModal()" class="text-muted-foreground hover:text-foreground text-sm font-bold w-7 h-7 rounded-lg bg-muted flex items-center justify-center">
+                ✕
+            </button>
+        </div>
+
+        <form method="POST" action="{{ route('laporan.item.store', $laporan) }}" class="space-y-3.5">
+            @csrf
+
+            <div>
+                <label class="block text-[11px] font-semibold text-foreground mb-1">Nama Barang / Komponen <span class="text-rose-500">*</span></label>
+                <input type="text" name="nama_barang" required placeholder="Contoh: Mouse Logitech / Kabel LAN / Monitor LG"
+                    class="w-full px-3 py-2 rounded-xl bg-muted/40 border border-border text-foreground text-xs font-semibold focus:ring-1 focus:ring-primary">
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="block text-[11px] font-semibold text-foreground mb-1">Jumlah <span class="text-rose-500">*</span></label>
+                    <input type="number" name="jumlah" min="1" value="1" required
+                        class="w-full px-3 py-2 rounded-xl bg-muted/40 border border-border text-foreground text-xs font-bold focus:ring-1 focus:ring-primary">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-semibold text-foreground mb-1">Satuan <span class="text-rose-500">*</span></label>
+                    <input type="text" name="satuan" value="unit" required placeholder="unit / pcs / buah"
+                        class="w-full px-3 py-2 rounded-xl bg-muted/40 border border-border text-foreground text-xs focus:ring-1 focus:ring-primary">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-semibold text-foreground mb-1">Keluhan / Kerusakan Awal</label>
+                <textarea name="deskripsi" rows="2" placeholder="Deskripsikan masalah kerusakan fisik atau gejala error..."
+                    class="w-full px-3 py-2 rounded-xl bg-muted/40 border border-border text-foreground text-xs focus:ring-1 focus:ring-primary resize-none"></textarea>
+            </div>
+
+            <div>
+                <label class="block text-[11px] font-semibold text-foreground mb-1">Catatan Ringkas / Tambahan</label>
+                <input type="text" name="keterangan" placeholder="Contoh: PC-05, port kendor, perlu kabel baru..."
+                    class="w-full px-3 py-2 rounded-xl bg-muted/40 border border-border text-foreground text-xs focus:ring-1 focus:ring-primary">
+            </div>
+
+            <div class="p-3 rounded-xl bg-muted/30 border border-border">
+                <label class="block text-[10px] font-bold text-muted-foreground uppercase tracking-wider mb-1">Usulan Tindak Lanjut <span class="text-rose-500">*</span></label>
+                <select name="jenis_tindak_lanjut" required
+                    class="w-full px-2.5 py-1.5 rounded-lg bg-card border border-border text-xs text-foreground font-semibold focus:ring-1 focus:ring-primary">
+                    <option value="pending">Pending (Menunggu Triase)</option>
+                    <option value="tindak_ulang">Tindak Ulang Laboran</option>
+                    <option value="perbaikan">Perbaikan (Teknisi / Lab)</option>
+                    <option value="penggantian">Penggantian (Stok / Pengadaan)</option>
+                </select>
+            </div>
+
+            <div class="flex items-center justify-end gap-2 pt-2 border-t border-border">
+                <button type="button" onclick="closeAddItemModal()"
+                    class="px-3.5 py-2 rounded-xl border border-border text-foreground text-xs font-semibold hover:bg-muted transition-colors">
+                    Batal
+                </button>
+                <button type="submit"
+                    class="px-4 py-2 rounded-xl bg-primary text-white text-xs font-bold shadow-sm shadow-primary/25 hover:bg-primary/90 transition-colors">
+                    Tambahkan Item
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
 <script>
     function toggleEditForm(id) {
         const el = document.getElementById(id);
         if (el) {
             el.classList.toggle('hidden');
         }
+    }
+
+    function openAddItemModal() {
+        document.getElementById('modal-add-item').classList.remove('hidden');
+    }
+
+    function closeAddItemModal() {
+        document.getElementById('modal-add-item').classList.add('hidden');
     }
 
     function openEditItemModal(id, namaBarang, jumlah, satuan, deskripsi, keterangan, jenisTindakLanjut, statusItem, updateUrl) {
@@ -771,6 +866,7 @@
     document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape') {
             closeEditItemModal();
+            closeAddItemModal();
         }
     });
 </script>
